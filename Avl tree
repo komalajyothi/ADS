@@ -1,0 +1,245 @@
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+struct Node
+{
+    int data;
+    struct Node *left;
+    struct Node *right;
+};
+typedef struct Node node;
+class AVLTree
+{
+public:
+    node *treeRoot;
+    AVLTree()
+    {
+        treeRoot = NULL;
+    }
+    int big(int a, int b)
+    {
+        return a > b ? a : b;
+    }
+    int hei(node *root)
+    {
+        if (root == NULL)
+            return -1;
+        else if (root->left == NULL && root->right == NULL)
+            return 0;
+        else if (root->left == NULL)
+            return 1 + hei(root->right);
+        else if (root->right == NULL)
+            return 1 + hei(root->left);
+        else
+            return 1 + big(hei(root->left), hei(root->right));
+    }
+    node *ll(node *root)
+    {
+        node *temp;
+        temp = root->left;
+        root->left = NULL;
+        if (temp->right == NULL)
+            temp->right = root;
+        else
+        {
+            root->left = temp->right;
+            temp->right = root;
+        }
+        //temp->right = root;
+        return temp;
+    }
+    node *rr(node *root)
+    {
+        node *temp, *temp1;
+        temp = root->right;
+        root->right = NULL;
+        if (temp->left == NULL)
+            temp->left = root;
+        else
+        {
+            temp1 = temp->left;
+            temp->left = root;
+            root->right = temp1;
+        }
+        return temp;
+    }
+    node *lr(node *root)
+    {
+        root->left = rr(root->left);
+        return ll(root);
+    }
+    node *rl(node *root)
+    {
+        root->right = ll(root->right);
+        return rr(root);
+    }
+    node *findmin(node *root)
+    {
+        if (root == NULL)
+            return NULL;
+        if (root->left == NULL)
+            return root;
+        else
+            return findmin(root->left);
+    }
+    node *insert(node *root, int x)
+    {
+        if (root == NULL)
+        {
+            root = (node *)malloc(sizeof(node));
+            cout << sizeof(root) << endl;
+            root->data = x;
+            root->left = root->right = NULL;
+        }
+        else if (x < root->data)
+        {
+            root->left = insert(root->left, x);
+            if (hei(root->left) - hei(root->right) >= 2 || hei(root->left) - hei(root->right) <= -2)
+            {
+                if (x < root->left->data)
+                    root = ll(root);
+                else
+                    root = lr(root);
+            }
+        }
+        else if (x > root->data)
+        {
+            root->right = insert(root->right, x);
+            if (hei(root->left) - hei(root->right) >= 2 || hei(root->left) - hei(root->right) <= -2)
+            {
+                if (x > root->right->data)
+                    root = rr(root);
+                else
+                    root = rl(root);
+            }
+        }
+        return root;
+    }
+    node *del(node *root, int e)
+    {
+        node *temp;
+        if (root == NULL)
+            return root;
+        else if (e < root->data)
+        {
+            root->left = del(root->left, e);
+            if (hei(root->right) - hei(root->left) == 2)
+            {
+                if (root->right->right)
+                    root = rr(root);
+                else
+                    root = rl(root);
+            }
+        }
+        else if (e > root->data)
+        {
+            root->right = del(root->right, e);
+            if (hei(root->left) - hei(root->right) == 2)
+            {
+                if (root->left->left)
+                    root = ll(root);
+                else
+                    root = lr(root);
+            }
+        }
+        else
+        {
+            if (root->left == NULL && root->right == NULL)
+            {
+                free(root);
+                return NULL;
+            }
+            else if (root->left != NULL && root->right != NULL)
+            {
+                temp = findmin(root->right);
+                root->data = temp->data;
+                root->right = del(root->right, temp->data);
+            }
+            else if (root->left == NULL)
+            {
+                root->data = root->right->data;
+                free(root->right);
+                root->right = NULL;
+            }
+            else
+            {
+                root->data = root->left->data;
+                free(root->left);
+                root->left = NULL;
+            }
+        }
+        return root;
+    }
+    int search(node *root, int ele)
+    {
+        if (root == NULL)
+            return 0;
+        else if (ele < root->data)
+            return search(root->left, ele);
+        else if (ele > root->data)
+            return search(root->right, ele);
+        else
+            return 1;
+    }
+    void printtree(node *t, int level)
+    {
+        if (t)
+        {
+            printtree(t->right, level + 1);
+            for (int i = 0; i < level; i++)
+                cout << "\t";
+            cout << t->data << endl;
+            printtree(t->left, level + 1);
+        }
+    }
+};
+
+int main()
+{
+    AVLTree avlTree;
+    int e;
+    int ch;
+    while (1)
+    {
+        cout << " 1. Insert \n 2. Remove \n 3. Search \n 4. Any other to Quit" << endl;
+        int choice;
+        cout << "Choose from menu: ";
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:
+            int element;
+            cout << "Enter the element to be inserted" << endl;
+            cin >> element;
+            avlTree.treeRoot = avlTree.insert(avlTree.treeRoot, element);
+            avlTree.printtree(avlTree.treeRoot, 1);
+            break;
+        case 2:
+            cout << "Enter the element to be inserted" << endl;
+            cin >> element;
+            if (avlTree.search(avlTree.treeRoot, element))
+            {
+                avlTree.treeRoot = avlTree.del(avlTree.treeRoot, element);
+                cout << element << " is deleted" << endl;
+                avlTree.printtree(avlTree.treeRoot,1);
+            }
+            else
+                cout << "Element not found cannot be deleted\n";
+            break;
+        case 3:
+            cout << "Enter the element to be inserted" << endl;
+            cin >> element;
+            if (avlTree.treeRoot == NULL)
+                cout << "Tree is empty\n";
+            else if (avlTree.search(avlTree.treeRoot, element))
+                cout << "Element found\n";
+            else
+                cout << "Element not found\n";
+            break;
+        default:
+            exit(0);
+        }
+    }
+    return 0;
+}
+
