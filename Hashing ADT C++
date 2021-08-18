@@ -1,0 +1,147 @@
+#include<iostream>
+#define MAX 10
+using namespace std;
+
+struct Node{
+    struct Node *previous;
+    int data;
+    struct Node *next;
+};
+class Hashing{
+    Node* ht[MAX];
+    Node* top[MAX];
+    public:
+        Hashing(){
+            for(int i=0;i<MAX;i++){
+                ht[i] = NULL;
+                top[i]= NULL;            }
+        }
+        int hashKey(int val){
+            return val%MAX;
+        }
+        void  insert(){
+            int data;
+            cout<<"Enter a value : '"<<endl;
+            cin>>data;
+            int key = hashKey(data);
+            cout<<key;
+            struct Node *temp = (struct Node *)malloc(sizeof(struct Node));
+            temp->data = data;
+            temp->previous = temp->next = NULL;
+            if(ht[key] == NULL){
+                ht[key] = temp;
+                top[key] = temp;
+            }
+            else{
+                temp->previous = top[key];
+                top[key]->next = temp;
+                top[key] = temp;
+            }
+        }
+        void del(){
+            int data;
+            cout<<"Enter a element to delete"<<endl;
+            cin>>data;
+            int key = hashKey(data);
+            struct Node *pr = ht[key];
+            int flag = 0;
+            if(pr!=NULL){
+                while(pr!=NULL){
+                    if(pr->data == data){
+                        if(pr->previous == NULL){
+                            struct Node *temp = pr->next;
+                            temp->previous = NULL;
+                            ht[key] = temp;
+                            pr = temp;
+                        }
+                        else if(pr->next == NULL){
+                            top[key] = pr->previous;
+                            top[key]->next = NULL;
+                            pr = top[key];
+                        }
+                        else{
+                            struct Node *tempp = pr->previous;
+                            struct Node *tempn = pr->next;
+                            tempp->next = tempn;
+                            tempn->previous = tempp;
+                            pr = tempn;
+                        }
+                        flag++;
+                    }
+                    pr = pr->next;
+                    
+                }
+                if(flag>0){
+                    cout<<flag<<"elements deleted"<<endl;
+                }
+                if(flag==0){
+                    cout<<"Element not found"<<endl;
+                }
+            }
+        }
+        void search(){
+            int data;
+            int flag = 0;
+            cout<<"Enter data to search"<<endl;
+            cin>>data;
+            int key = hashKey(data);
+            struct Node *pr = ht[key];
+            if(pr!=NULL){
+                while(pr!=NULL){
+                    if(pr->data == data){
+                        flag++;
+                    }
+                    pr = pr->next;
+                }
+            }
+            if (flag > 0)
+            {
+                cout << flag << "elements found" << endl;
+            }
+            if (flag == 0)
+            {
+                cout << "Element not found" << endl;
+            }
+        }
+        void display(){
+            cout<<"H A S H T A B L E"<<endl;
+            struct Node *pr;
+            for(int i=0;i<MAX;i++){
+                cout<<"ht["<<i<<"] : ";
+                pr = ht[i];
+                if(pr!=NULL){
+                    while(pr!=NULL){
+                        cout<<pr->data<<" ";
+                        pr = pr->next;
+                    }
+                }
+                cout<<" "<<endl;
+            }
+        }
+};
+int main(){
+    Hashing h;
+    while(true){
+        cout << "** Implementation of Hashing **\n";
+        cout << "1.Insert\n2.Delete\n3.Display\n4.Search\n5.Exit";
+        cout<<"Enter your choice : ";
+        int choice;
+        cin>>choice;
+        if(choice == 1){
+            h.insert();
+        }
+        else if(choice == 2){
+            h.del();
+        }
+        else if(choice == 3){
+            h.display();
+        }
+        else if(choice == 4){
+            h.search();
+        }
+        else{
+            return 0;
+        }
+    }
+    return 0;
+}
