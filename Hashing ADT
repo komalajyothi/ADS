@@ -1,0 +1,180 @@
+import java.util.*;
+class Node
+{
+	public int data;
+	public Node next, prev;
+	public Node(int data)
+	{
+		this.data = data;
+		next = prev = null;
+	}
+}
+
+class Hashing
+{
+	Node ht[];
+	Node top[];
+	final int MAX = 10;
+	public Hashing()
+	{
+		ht = new Node[MAX];
+		top = new Node[MAX];
+		for(int i=0;i<MAX;i++)
+		{
+			ht[i] = null;
+			top[i] = null;
+		}
+	}
+
+	int hashkey(int data)
+	{
+		return (data%MAX);
+	}
+
+	public void insert()
+	{
+		int data;
+		System.out.println("\t Enter a value : ");
+		Scanner cin= new Scanner(System.in);
+		data = cin.nextInt();
+		int i=hashkey(data);
+		Node t=new Node(data);
+		if(ht[i]==null)
+		{
+			ht[i]=t;
+			top[i]=t;
+		}
+		else
+		{
+			t.prev=top[i];
+			top[i].next=t;
+			top[i]=t;
+		}
+	}
+	
+	public void del()
+	{
+		int data;
+		System.out.println("\t Enter a value : ");
+		Scanner cin = new Scanner(System.in);
+		data = cin.nextInt();
+		int flag=0;
+		int i=hashkey(data);
+		Node pr=ht[i];
+		if(pr!=null)
+		{
+			while(pr!=null)
+			{
+				if(pr.data==data)
+				{
+					if(pr.prev==null)
+					{
+						Node temp=pr.next;
+						temp.prev=null;
+						ht[i]=temp;
+						pr=temp;
+					}
+					else if(pr.next==null)
+					{
+						top[i]=pr.prev;
+						top[i].next=null;
+						pr=top[i];
+					}
+					else
+					{
+						Node tempprev=pr.prev;
+						Node tempnext=pr.next;
+						tempprev.next=tempnext;
+						tempnext.prev =tempprev;
+						pr=tempnext;
+					}
+					flag++;
+				}
+				else
+				pr=pr.next;
+			}
+			if(flag>0)
+				System.out.println("\n\n\t * "+flag+" elements deleted.");
+			}
+			if(flag==0)
+				System.out.println("\n\n\t * The Element is not found.");
+	}
+
+	public void print()
+	{
+		System.out.println("\n\n\t ** HashTable **\n");
+		Node pr;
+		for(int i=0;i<MAX;i++)
+		{
+			if(i<10)
+				System.out.print("\t ht[0"+i+"] : ");
+			pr=ht[i];
+			if(pr!=null)
+			{
+				while(pr!=null)
+				{
+					System.out.print(pr.data);
+					pr=pr.next;
+					if(pr!=null)
+					System.out.print(" , ");
+				}
+			}
+			else
+				System.out.print("-");
+			System.out.print("\n");
+	}
+}
+
+	public void search( )
+	{
+	int data;
+	int flag=0;
+	System.out.println("\t Enter a value : ");
+	Scanner cin = new Scanner(System.in);
+	data = cin.nextInt();
+	int i=hashkey(data);
+	Node pr=ht[i];
+	if(pr!=null)
+	{
+		while(pr!=null)
+		{
+			if(pr.data==data)
+				flag++;
+			pr=pr.next;
+		}
+	if(flag>0)
+	System.out.println("\n\n\t * The Search Element is found "+flag+" times.");
+	}
+	
+	if(flag==0)
+		System.out.println("\n\n\t * The Search Element is not found.");
+	}
+}
+
+
+public class Main
+{
+	public static void main(String args[])
+	{
+	int ch;
+		Hashing h=new Hashing();
+		while(true)
+		{
+			System.out.println("**** Implementation of Hashing ****\n");
+			System.out.println("1.Insert\n2.Delete\n3.Display\n4.Search\n5.Exit");
+			System.out.println("Enter your Choice : ");
+			Scanner cin= new Scanner(System.in);
+			ch = cin.nextInt();
+			if(ch==1)
+				h.insert();
+			else if(ch==2)
+				h.del();
+			else if(ch==3)
+				h.print();
+			else if(ch==4)
+				h.search();
+			else
+				return;
+	}
+}
+}
